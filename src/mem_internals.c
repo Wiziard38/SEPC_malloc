@@ -20,24 +20,24 @@ void *mark_memarea_and_get_user_ptr(void *ptr, unsigned long size, MemKind k)
     unsigned long magic = knuth_mmix_one_round((unsigned long)ptr);
     switch (k){
         case SMALL_KIND:
-            magic = magic & 0xFFFFFFFFFFFFFFFC;
+            magic = magic & 0xFFFFFFFC;
             break;
         case MEDIUM_KIND:
-            magic = magic & 0xFFFFFFFFFFFFFFFD;
+            magic = (magic & 0xFFFFFFFC) | 0x00000001;
             break;
         case LARGE_KIND:
-            magic = magic & 0xFFFFFFFFFFFFFFFE;
+            magic = (magic & 0xFFFFFFFC) | 0x00000002;
             break;
     }
     unsigned long * ptr_bis = (unsigned long *)ptr;    
     *ptr_bis = size;
-    ptr++;
+    ptr_bis++;
     *ptr_bis = magic;
-    ptr_bis += size;
+    ptr_bis += size-4;
+    *ptr_bis = magic;
+    ptr_bis++;
     *ptr_bis = size;
-    ptr++;
-    *ptr_bis = magic;
-    ptr_bis -= size +1;
+    ptr_bis -= size -3;
     return (void *)ptr_bis;
     
 }
@@ -49,9 +49,9 @@ Alloc mark_check_and_get_alloc(void *ptr)
     unsigned long size;
     MemKind k;
     unsigned long magic;
-    unsigned long * ptr_bis = ptr;
+    unsigned long * ptr_bis = (unsigned long *)ptr;
     ptr_bis -= 2;
-    size = * ptr_bis;
+    size = *ptr_bis;
     ptr_bis++;
     magic = *ptr_bis;
     if ((magic & 0b11UL) ==0){
@@ -65,11 +65,11 @@ Alloc mark_check_and_get_alloc(void *ptr)
             k = LARGE_KIND;
         }
     }
-    ptr_bis += 2 + size;
-    assert(*ptr_bis == size);
-    ptr_bis += 2;
+    ptr_bis += size-3;
     assert(*ptr_bis == magic);
-    ptr_bis -= 4+size;
+    ptr_bis ++;
+    assert(*ptr_bis == size);
+    ptr_bis -= size-1;
     a.ptr = (void *)ptr_bis;
     a.size = size;
     a.kind= k;
