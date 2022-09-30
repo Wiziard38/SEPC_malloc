@@ -18,7 +18,29 @@ unsigned long knuth_mmix_one_round(unsigned long in)
 void *mark_memarea_and_get_user_ptr(void *ptr, unsigned long size, MemKind k)
 {
     /* ecrire votre code ici */
-    return (void *)0;
+    unsigned long magic = knuth_mmix_one_round((unsigned long)ptr);
+    switch (k){
+        case SMALL_KIND:
+            magic = magic & 0xFFFFFFFFFFFFFFFC;
+            break;
+        case MEDIUM_KIND:
+            magic = magic & 0xFFFFFFFFFFFFFFFD;
+            break;
+        case LARGE_KIND:
+            magic = magic & 0xFFFFFFFFFFFFFFFE;
+            break;
+    }
+        
+    *(unsigned long *)ptr = size;
+    ptr++;
+    *(unsigned long *)ptr = magic;
+    ptr += size;
+    *(unsigned long *)ptr = size;
+    ptr++;
+    *(unsigned long *)ptr = magic;
+    ptr -= size +1;
+    return ptr;
+    
 }
 
 Alloc
