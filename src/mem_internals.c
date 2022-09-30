@@ -16,28 +16,27 @@ unsigned long knuth_mmix_one_round(unsigned long in)
 
 void *mark_memarea_and_get_user_ptr(void *ptr, unsigned long size, MemKind k)
 {
-    /* ecrire votre code ici */
     unsigned long magic = knuth_mmix_one_round((unsigned long)ptr);
     switch (k){
         case SMALL_KIND:
-            magic = magic & 0xFFFFFFFC;
+            magic = magic & 0xFFFFFFFFFFFFFFFC;
             break;
         case MEDIUM_KIND:
-            magic = (magic & 0xFFFFFFFC) | 0x00000001;
+            magic = (magic & 0xFFFFFFFFFFFFFFFC) | 0x00000001;
             break;
         case LARGE_KIND:
-            magic = (magic & 0xFFFFFFFC) | 0x00000002;
+            magic = (magic & 0xFFFFFFFFFFFFFFFC) | 0x00000002;
             break;
     }
-    unsigned long * ptr_bis = (unsigned long *)ptr;    
-    *ptr_bis = size;
-    ptr_bis++;
-    *ptr_bis = magic;
-    ptr_bis += size-4;
-    *ptr_bis = magic;
-    ptr_bis++;
-    *ptr_bis = size;
-    ptr_bis -= size -3;
+    char * ptr_bis = (char *)ptr;    
+    *(unsigned long *)ptr_bis = size;
+    ptr_bis+=8;
+    *(unsigned long *)ptr_bis = magic;
+    ptr_bis += size-24;
+    *(unsigned long *)ptr_bis = magic;
+    ptr_bis+=8;
+    *(unsigned long *)ptr_bis = size;
+    ptr_bis -= size -24;
     return (void *)ptr_bis;
     
 }
@@ -49,10 +48,10 @@ Alloc mark_check_and_get_alloc(void *ptr)
     unsigned long size;
     MemKind k;
     unsigned long magic;
-    unsigned long * ptr_bis = (unsigned long *)ptr;
-    ptr_bis -= 2;
+    char * ptr_bis = (char *)ptr;
+    ptr_bis -= 16;
     size = *ptr_bis;
-    ptr_bis++;
+    ptr_bis+= 8;
     magic = *ptr_bis;
     if ((magic & 0b11UL) ==0){
         k = SMALL_KIND;
@@ -65,11 +64,11 @@ Alloc mark_check_and_get_alloc(void *ptr)
             k = LARGE_KIND;
         }
     }
-    ptr_bis += size-3;
+    ptr_bis += size -24;
     assert(*ptr_bis == magic);
-    ptr_bis ++;
+    ptr_bis += 8;
     assert(*ptr_bis == size);
-    ptr_bis -= size-1;
+    ptr_bis -= size -8;
     a.ptr = (void *)ptr_bis;
     a.size = size;
     a.kind= k;
