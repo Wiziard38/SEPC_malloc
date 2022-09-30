@@ -28,16 +28,17 @@ void *mark_memarea_and_get_user_ptr(void *ptr, unsigned long size, MemKind k)
             magic = (magic & 0xFFFFFFFFFFFFFFFC) | 0x00000002;
             break;
     }
-    unsigned long * ptr_bis = (unsigned long *)ptr;   
-    *ptr_bis = size;
-    ptr_bis++;
-    *ptr_bis = magic;
-    ptr_bis += (int)(size/8)-3;
-    *ptr_bis = magic;
-    ptr_bis++;
-    *ptr_bis = size;
-    ptr_bis -= (int)(size/8) -3;
-    return (void *)ptr_bis;  
+    char * ptr_bis = (char *)ptr;    
+    *(unsigned long *)ptr_bis = size;
+    ptr_bis+=8;
+    *(unsigned long *)ptr_bis = magic;
+    ptr_bis += size-24;
+    *(unsigned long *)ptr_bis = magic;
+    ptr_bis+=8;
+    *(unsigned long *)ptr_bis = size;
+    ptr_bis -= size -24;
+    return (void *)ptr_bis;
+    
 }
 
 Alloc mark_check_and_get_alloc(void *ptr)
