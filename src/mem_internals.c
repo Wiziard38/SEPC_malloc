@@ -9,7 +9,6 @@
 #include <stdint.h>
 #include "mem.h"
 #include "mem_internals.h"
-
 unsigned long knuth_mmix_one_round(unsigned long in)
 {
     return in * 6364136223846793005UL % 1442695040888963407UL;
@@ -30,24 +29,50 @@ void *mark_memarea_and_get_user_ptr(void *ptr, unsigned long size, MemKind k)
             magic = magic & 0xFFFFFFFFFFFFFFFE;
             break;
     }
-        
-    *(unsigned long *)ptr = size;
+    unsigned long * ptr_bis = (unsigned long *)ptr;    
+    *ptr_bis = size;
     ptr++;
-    *(unsigned long *)ptr = magic;
-    ptr += size;
-    *(unsigned long *)ptr = size;
+    *ptr_bis = magic;
+    ptr_bis += size;
+    *ptr_bis = size;
     ptr++;
-    *(unsigned long *)ptr = magic;
-    ptr -= size +1;
-    return ptr;
+    *ptr_bis = magic;
+    ptr_bis -= size +1;
+    return (void *)ptr_bis;
     
 }
 
-Alloc
-mark_check_and_get_alloc(void *ptr)
+Alloc mark_check_and_get_alloc(void *ptr)
 {
     /* ecrire votre code ici */
     Alloc a = {};
+    unsigned long size;
+    MemKind k;
+    unsigned long magic;
+    unsigned long * ptr_bis = ptr;
+    ptr_bis -= 2;
+    size = * ptr_bis;
+    ptr_bis++;
+    magic = *ptr_bis;
+    if ((magic & 0b11UL) ==0){
+        k = SMALL_KIND;
+    }
+    else{
+        if ((magic & 0b11UL) ==0b01UL){
+            k = MEDIUM_KIND;
+        }
+        else{
+            k = LARGE_KIND;
+        }
+    }
+    ptr_bis += 2 + size;
+    assert(*ptr_bis == size);
+    ptr_bis += 2;
+    assert(*ptr_bis == magic);
+    ptr_bis -= 4+size;
+    a.ptr = (void *)ptr_bis;
+    a.size = size;
+    a.kind= k;
     return a;
 }
 
