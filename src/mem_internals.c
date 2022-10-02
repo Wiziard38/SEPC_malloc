@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include "mem.h"
 #include "mem_internals.h"
+
 unsigned long knuth_mmix_one_round(unsigned long in)
 {
     return in * 6364136223846793005UL % 1442695040888963407UL;
@@ -76,8 +77,7 @@ Alloc mark_check_and_get_alloc(void *ptr)
 }
 
 
-unsigned long
-mem_realloc_small() {
+unsigned long mem_realloc_small() {
     assert(arena.chunkpool == 0);
     unsigned long size = (FIRST_ALLOC_SMALL << arena.small_next_exponant);
     arena.chunkpool = mmap(0,
@@ -92,8 +92,7 @@ mem_realloc_small() {
     return size;
 }
 
-unsigned long
-mem_realloc_medium() {
+unsigned long mem_realloc_medium() {
     uint32_t indice = FIRST_ALLOC_MEDIUM_EXPOSANT + arena.medium_next_exponant;
     assert(arena.TZL[indice] == 0);
     unsigned long size = (FIRST_ALLOC_MEDIUM << arena.medium_next_exponant);
@@ -115,8 +114,7 @@ mem_realloc_medium() {
 
 
 // used for test in buddy algo
-unsigned int
-nb_TZL_entries() {
+unsigned int nb_TZL_entries() {
     int nb = 0;
     
     for(int i=0; i < TZL_SIZE; i++)
