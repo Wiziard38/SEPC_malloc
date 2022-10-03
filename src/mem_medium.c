@@ -59,24 +59,40 @@ void * emalloc_medium(unsigned long size)
 void efree_medium(Alloc a) {
     /* ecrire votre code ici */
     void ** ptr_current = a.ptr;
-    void ** buddy = (void **)((unsigned long)ptr_current ^ (1<<(a.size)));
+    void ** buddy = (void **)((unsigned long)ptr_current ^ (a.size));
     int i = puiss2(a.size);
     void ** ptr_tzl_before = arena.TZL[i];
-    void ** ptr_tzl= NULL;
-    while (*ptr_tzl_before != buddy  && ptr_tzl_before != NULL) {
-        ptr_tzl_before = *ptr_tzl_before;
-    }
-    if (ptr_tzl_before == NULL) {
-        *ptr_current = arena.TZL[i];
-        arena.TZL[i] = ptr_current;
-    } else {
-        ptr_tzl = *ptr_tzl_before;
-        *ptr_tzl_before = *ptr_tzl;
+    void ** ptr_tzl = NULL;
+    printf("\n=====================================\n");
+    printf("\n size :         : %lu", a.size);
+    printf("\n ptr_tzl_before : %p \n", ptr_tzl_before);
+    printf("\n=====================================\n");
+
+    if (ptr_tzl_before == buddy) {
+        printf("1");
+        arena.TZL[i] = *ptr_tzl_before;
         if ((unsigned long)ptr_current > (unsigned long)buddy) {
             a.ptr = buddy;
         }
         a.size *= 2;
         efree_medium(a);
+    } else {
+        printf("2");
+        while (*ptr_tzl_before != buddy || ptr_tzl_before != NULL) {
+            ptr_tzl_before = *ptr_tzl_before;
+        }
+        if (ptr_tzl_before == NULL) {
+            *ptr_current = arena.TZL[i];
+            arena.TZL[i] = ptr_current;
+        } else {
+            ptr_tzl = *ptr_tzl_before;
+            *ptr_tzl_before = *ptr_tzl;
+            if ((unsigned long)ptr_current > (unsigned long)buddy) {
+                a.ptr = buddy;
+            }
+            a.size *= 2;
+            efree_medium(a);
+        }
     }
 }
 

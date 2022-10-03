@@ -53,7 +53,7 @@ Alloc mark_check_and_get_alloc(void *ptr)
     ptr_bis -= 16;
     unsigned long * ptr_test = (unsigned long *)ptr_bis;
     size = *(unsigned long *)ptr_bis;
-    printf("size: %lu", size);
+    //printf("size: %lu", size);
     ptr_bis+= 8;
     ptr_test = (unsigned long *)ptr_bis;
     magic = *(unsigned long *)ptr_bis;
@@ -71,7 +71,7 @@ Alloc mark_check_and_get_alloc(void *ptr)
     }
     ptr_bis += size -24;
     ptr_test = (unsigned long *)ptr_bis;
-    printf("\n addr: %p\n ptrbis: %i \n  et magic: %lu \n",ptr_bis, *ptr_bis, magic);
+    //printf("\n addr: %p\n ptrbis: %i \n  et magic: %lu \n",ptr_bis, *ptr_bis, magic);
     assert(*(unsigned long *)ptr_bis == magic);
     ptr_bis += 8;
     ptr_test = (unsigned long *)ptr_bis;
