@@ -31,15 +31,26 @@ void * emalloc_medium(unsigned long size)
         void ** ptr_head = arena.TZL[i];
         void ** ptr_next = * ptr_head;
         arena.TZL[i] = ptr_next;
-        return mark_memarea_and_get_user_ptr(ptr_head,size,MEDIUM_KIND);
+        return mark_memarea_and_get_user_ptr(ptr_head, size, MEDIUM_KIND);
     }
     else {
-        for (int j = i; j <FIRST_ALLOC_MEDIUM_EXPOSANT + arena.medium_next_exponant; j++){
-            if (arena.TZL[j] != NULL){
-                
+        char found = 0;
+        int j = i;
+        while ((found == 0) && (j < FIRST_ALLOC_MEDIUM_EXPOSANT + arena.medium_next_exponant)) {
+            if (arena.TZL[j] != NULL) {
+                found = 1;
             }
+            j++;
         }
-        mem_realloc_medium()
+        if (found == 0) {
+            mem_realloc_medium();
+        }
+        void ** ptr_current = arena.TZL[j];
+        while (j > i) {
+            arena.TZL[j-1] = (void **)((unsigned long)ptr_current ^ (2<<(j-1)));
+            j--;
+        }
+        return mark_memarea_and_get_user_ptr(ptr_current, size, MEDIUM_KIND);
     }
 }
 
