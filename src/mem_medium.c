@@ -31,7 +31,7 @@ void * emalloc_medium(unsigned long size)
         void ** ptr_head = arena.TZL[i];
         void ** ptr_next = * ptr_head;
         arena.TZL[i] = ptr_next;
-        return mark_memarea_and_get_user_ptr(ptr_head, 2<<i, MEDIUM_KIND);
+        return mark_memarea_and_get_user_ptr(ptr_head, 1<<(i), MEDIUM_KIND);
     }
     else {
         char found = 0;
@@ -47,10 +47,10 @@ void * emalloc_medium(unsigned long size)
         }
         void ** ptr_current = arena.TZL[j];
         while (j > i) {
-            arena.TZL[j-1] = (void **)((unsigned long)ptr_current ^ (2<<(j-1)));
+            arena.TZL[j-1] = (void **)((unsigned long)ptr_current ^ (1<<(j-1)));
             j--;
-        }
-        return mark_memarea_and_get_user_ptr(ptr_current, 2<<i, MEDIUM_KIND);
+        }   
+        return mark_memarea_and_get_user_ptr(ptr_current, 1<<(i), MEDIUM_KIND);
     }
 }
 
@@ -59,7 +59,7 @@ void * emalloc_medium(unsigned long size)
 void efree_medium(Alloc a) {
     /* ecrire votre code ici */
     void ** ptr_current = a.ptr;
-    void ** buddy = (void **)((unsigned long)ptr_current ^ (2<<(a.size)));
+    void ** buddy = (void **)((unsigned long)ptr_current ^ (1<<(a.size)));
     int i = puiss2(a.size);
     void ** ptr_tzl_before = arena.TZL[i];
     void ** ptr_tzl= NULL;
