@@ -31,7 +31,7 @@ void * emalloc_medium(unsigned long size)
         void ** ptr_head = arena.TZL[i];
         void ** ptr_next = * ptr_head;
         arena.TZL[i] = ptr_next;
-        return mark_memarea_and_get_user_ptr(ptr_head, size, MEDIUM_KIND);
+        return mark_memarea_and_get_user_ptr(ptr_head, 2<<i, MEDIUM_KIND);
     }
     else {
         char found = 0;
@@ -50,7 +50,7 @@ void * emalloc_medium(unsigned long size)
             arena.TZL[j-1] = (void **)((unsigned long)ptr_current ^ (2<<(j-1)));
             j--;
         }
-        return mark_memarea_and_get_user_ptr(ptr_current, size, MEDIUM_KIND);
+        return mark_memarea_and_get_user_ptr(ptr_current, 2<<i, MEDIUM_KIND);
     }
 }
 
@@ -58,6 +58,26 @@ void * emalloc_medium(unsigned long size)
 
 void efree_medium(Alloc a) {
     /* ecrire votre code ici */
+    void ** ptr_current = a.ptr;
+    void ** buddy = (void **)((unsigned long)ptr_current ^ (2<<(a.size)));
+    int i = puiss2(a.size);
+    void ** ptr_tzl_before = arena.TZL[i];
+    void ** ptr_tzl= NULL;
+    while (*ptr_tzl_before != buddy  && ptr_tzl_before != NULL) {
+        ptr_tzl_before = *ptr_tzl_before;
+    }
+    if (ptr_tzl_before == NULL) {
+        *ptr_current = arena.TZL[i];
+        arena.TZL[i] = ptr_current;
+    } else {
+        ptr_tzl = *ptr_tzl_before;
+        *ptr_tzl_before = *ptr_tzl;
+        if ((unsigned long)ptr_current > (unsigned long)buddy) {
+            a.ptr = buddy;
+        }
+        a.size *= 2;
+        efree_medium(a);
+    }
 }
 
 
