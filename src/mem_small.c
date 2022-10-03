@@ -15,14 +15,13 @@ void *emalloc_small(unsigned long size)
         void ** ptr_current = arena.chunkpool;
 
         for (int i = 0; i < size; i += CHUNKSIZE) {
-            void ** ptr_next = *ptr_current + CHUNKSIZE;
-            *ptr_current = (void *)ptr_next;
-            ptr_current = ptr_next;
+            *ptr_current = ptr_current + CHUNKSIZE/8;
+            ptr_current = *ptr_current;
         }
     }
-    
+
     void ** ptr_head = arena.chunkpool;
-    void * ptr_next = *ptr_head;
+    void ** ptr_next = *ptr_head;
     arena.chunkpool = ptr_next;
 
     return mark_memarea_and_get_user_ptr(ptr_head, CHUNKSIZE, SMALL_KIND);
@@ -31,6 +30,6 @@ void *emalloc_small(unsigned long size)
 void efree_small(Alloc a) {
     void * ptr_head = arena.chunkpool;
     void ** ptr_new = a.ptr;
-    *ptr_new = (void *)ptr_head;
+    *ptr_new = ptr_head;
     arena.chunkpool = ptr_new;
 }
