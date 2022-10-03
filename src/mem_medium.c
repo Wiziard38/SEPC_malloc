@@ -22,14 +22,27 @@ unsigned int puiss2(unsigned long size) {
 }
 
 
-void *
-emalloc_medium(unsigned long size)
+void * emalloc_medium(unsigned long size)
 {
     assert(size < LARGEALLOC);
     assert(size > SMALLALLOC);
-    /* ecrire votre code ici */
-    return (void *) 0;
+    unsigned int i = puiss2(size);
+    if (arena.TZL[i] != NULL){
+        void ** ptr_head = arena.TZL[i];
+        void ** ptr_next = * ptr_head;
+        arena.TZL[i] = ptr_next;
+        return mark_memarea_and_get_user_ptr(ptr_head,size,MEDIUM_KIND);
+    }
+    else {
+        for (int j = i; j <FIRST_ALLOC_MEDIUM_EXPOSANT + arena.medium_next_exponant; j++){
+            if (arena.TZL[j] != NULL){
+                
+            }
+        }
+        mem_realloc_medium()
+    }
 }
+
 
 
 void efree_medium(Alloc a) {
