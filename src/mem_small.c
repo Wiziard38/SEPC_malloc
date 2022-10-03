@@ -23,7 +23,7 @@ void *emalloc_small(unsigned long size)
     void ** ptr_head = arena.chunkpool;
     void ** ptr_next = *ptr_head;
     arena.chunkpool = ptr_next;
-
+    
     return mark_memarea_and_get_user_ptr(ptr_head, CHUNKSIZE, SMALL_KIND);
 }
 
