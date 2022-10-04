@@ -68,12 +68,12 @@ TEST(Basic, oneallocloopmedium) {
     vector<void *> tab(100);
     
     for (auto &t : tab) {
-	t = emalloc(65);
-	ASSERT_NE( t, nullptr );
-	memset(t, 1, 65);
+      t = emalloc(65);
+      ASSERT_NE( t, nullptr );
+      memset(t, 1, 65);
     }
     for (auto t: tab) {
-	efree(t);
+	    efree(t);
     }
 }
 

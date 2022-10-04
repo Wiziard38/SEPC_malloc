@@ -39,6 +39,7 @@ void * emalloc_medium(unsigned long size)
         while ((found == 0) && (j < FIRST_ALLOC_MEDIUM_EXPOSANT + arena.medium_next_exponant)) {
             if (arena.TZL[j] != NULL) {
                 found = 1;
+                j--;
             }
             j++;
         }
