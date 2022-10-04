@@ -28,36 +28,47 @@ void *mark_memarea_and_get_user_ptr(void *ptr, unsigned long size, MemKind k)
             magic = (magic & 0xFFFFFFFFFFFFFFFC) | 0x00000002;
             break;
     }
+    
     char * ptr_bis = (char *)ptr;
-    unsigned long * ptr_test = (unsigned long *)ptr_bis;    
+    printf("\n addr: %p\n",ptr_bis);  
     *(unsigned long *)ptr_bis = size;
+    printf("\n size1: %lu\n", *(unsigned long *)ptr_bis);
     ptr_bis+=8;
+    printf("\n addr: %p\n",ptr_bis);
     *(unsigned long *)ptr_bis = magic;
+    printf("\n magic1: %lu\n", *(unsigned long *)ptr_bis);
     ptr_bis += size-24;
+    printf("\n addr: %p\n",ptr_bis);
     *(unsigned long *)ptr_bis = magic;
+    printf("\n magic2: %lu\n", *(unsigned long *)ptr_bis);
     ptr_bis+=8;
+    printf("\n addr: %p\n",ptr_bis);
     *(unsigned long *)ptr_bis = size;
+    printf("\n size2: %lu\n", *(unsigned long *)ptr_bis);
     ptr_bis -= size -24;
+    printf("\n addr: %p\n",ptr_bis);
     return (void *)ptr_bis;
-    (void)ptr_test;
 }
 
 Alloc mark_check_and_get_alloc(void *ptr)
 {
     /* ecrire votre code ici */
     Alloc a = {};
+    printf("a.size: %lu", a.size);
     unsigned long size;
     MemKind k;
     unsigned long magic;
     char * ptr_bis = (char *)ptr;
+    printf("\n addr: %p\n",ptr_bis);
     ptr_bis -= 16;
-    unsigned long * ptr_test = (unsigned long *)ptr_bis;
+    printf("\n addr: %p\n",ptr_bis);
     size = *(unsigned long *)ptr_bis;
+    printf("\n size1: %lu\n", *(unsigned long *)ptr_bis);
     //printf("size: %lu", size);
     ptr_bis+= 8;
-    ptr_test = (unsigned long *)ptr_bis;
+    printf("\n addr: %p\n",ptr_bis);
     magic = *(unsigned long *)ptr_bis;
-
+    printf("\n magic1: %lu\n", *(unsigned long *)ptr_bis);
     if ((magic & 0b11UL) ==0){
         k = SMALL_KIND;
     }
@@ -70,17 +81,20 @@ Alloc mark_check_and_get_alloc(void *ptr)
         }
     }
     ptr_bis += size -24;
-    ptr_test = (unsigned long *)ptr_bis;
+    printf("\n addr: %p\n",ptr_bis);
     //printf("\n addr: %p\n ptrbis: %i \n  et magic: %lu \n",ptr_bis, *ptr_bis, magic);
+    printf("\n magic2: %lu\n", *(unsigned long *)ptr_bis);
     assert(*(unsigned long *)ptr_bis == magic);
+    
     ptr_bis += 8;
-    ptr_test = (unsigned long *)ptr_bis;
+    printf("\n addr: %p\n",ptr_bis);
+    printf("\n size2: %lu\n", *(unsigned long *)ptr_bis);
     assert(*(unsigned long *)ptr_bis == size);
     ptr_bis -= size - 8;
+    printf("\n addr: %p\n",ptr_bis);
     a.ptr = (void *)ptr_bis;
     a.size = size;
     a.kind= k;
-    (void)ptr_test;
     return a;
 }
 

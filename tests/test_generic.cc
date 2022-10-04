@@ -121,6 +121,6 @@ TEST(Generic, aleatoire) {
   
   for(int i=0; i< 10; i++)
     {
-      random_run_cpp(false);
+      random_run_cpp(true);
     } 
 }

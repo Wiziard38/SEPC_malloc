@@ -26,7 +26,9 @@ void * emalloc_medium(unsigned long size)
 {
     assert(size < LARGEALLOC);
     assert(size > SMALLALLOC);
-    unsigned int i = puiss2(size);
+    unsigned int i = puiss2(size+32);
+    printf("\nsize: %lu\n", size);
+    printf("\ni: %u\n", i);
     if (arena.TZL[i] != NULL){
         void ** ptr_head = arena.TZL[i];
         void ** ptr_next = * ptr_head;
@@ -50,6 +52,8 @@ void * emalloc_medium(unsigned long size)
         arena.TZL[j] = NULL;
         while (j > i) {
             arena.TZL[j-1] = (void **)((unsigned long)ptr_current ^ (1<<(j-1)));
+            void ** ptr_next = arena.TZL[j-1];
+            *ptr_next = 0;
             j--;
         }   
         return mark_memarea_and_get_user_ptr(ptr_current, 1<<(i), MEDIUM_KIND);
