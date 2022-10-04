@@ -61,6 +61,7 @@ void * emalloc_medium(unsigned long size)
 void efree_medium(Alloc a) {
     /* ecrire votre code ici */
     void ** ptr_current = a.ptr;
+    *ptr_current = 0;
     void ** buddy = (void **)((unsigned long)ptr_current ^ (a.size));
     int i = puiss2(a.size);
     void ** ptr_tzl_before = arena.TZL[i];

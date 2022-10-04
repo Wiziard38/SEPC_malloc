@@ -30,6 +30,7 @@ void *emalloc_small(unsigned long size)
 void efree_small(Alloc a) {
     void * ptr_head = arena.chunkpool;
     void ** ptr_new = a.ptr;
+    *ptr_new = 0;
     *ptr_new = ptr_head;
     arena.chunkpool = ptr_new;
 }
