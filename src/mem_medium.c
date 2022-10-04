@@ -46,6 +46,7 @@ void * emalloc_medium(unsigned long size)
             mem_realloc_medium();
         }
         void ** ptr_current = arena.TZL[j];
+        arena.TZL[j] = NULL;
         while (j > i) {
             arena.TZL[j-1] = (void **)((unsigned long)ptr_current ^ (1<<(j-1)));
             j--;
@@ -63,13 +64,8 @@ void efree_medium(Alloc a) {
     int i = puiss2(a.size);
     void ** ptr_tzl_before = arena.TZL[i];
     void ** ptr_tzl = NULL;
-    printf("\n=====================================\n");
-    printf("\n size :         : %lu", a.size);
-    printf("\n ptr_tzl_before : %p \n", ptr_tzl_before);
-    printf("\n=====================================\n");
 
     if (ptr_tzl_before == buddy) {
-        printf("1");
         arena.TZL[i] = *ptr_tzl_before;
         if ((unsigned long)ptr_current > (unsigned long)buddy) {
             a.ptr = buddy;
@@ -77,8 +73,7 @@ void efree_medium(Alloc a) {
         a.size *= 2;
         efree_medium(a);
     } else {
-        printf("2");
-        while (*ptr_tzl_before != buddy || ptr_tzl_before != NULL) {
+        while (ptr_tzl_before != NULL && *ptr_tzl_before != buddy) {
             ptr_tzl_before = *ptr_tzl_before;
         }
         if (ptr_tzl_before == NULL) {
