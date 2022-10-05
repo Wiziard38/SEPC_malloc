@@ -26,9 +26,7 @@ void * emalloc_medium(unsigned long size)
 {
     assert(size < LARGEALLOC);
     assert(size > SMALLALLOC);
-    unsigned int i = puiss2(size+32);
-    printf("\nsize: %lu\n", size);
-    printf("\ni: %u\n", i);
+    unsigned int i = puiss2(size + 32);
     if (arena.TZL[i] != NULL){
         void ** ptr_head = arena.TZL[i];
         void ** ptr_next = * ptr_head;
@@ -51,7 +49,7 @@ void * emalloc_medium(unsigned long size)
         void ** ptr_current = arena.TZL[j];
         arena.TZL[j] = NULL;
         while (j > i) {
-            arena.TZL[j-1] = (void **)((unsigned long)ptr_current ^ (1<<(j-1)));
+            arena.TZL[j-1] = (void **)((unsigned long)ptr_current ^ (1<<(j - 1)));
             void ** ptr_next = arena.TZL[j-1];
             *ptr_next = 0;
             j--;
